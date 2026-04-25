@@ -68,12 +68,6 @@ window_provider = sdl2
 # (str) Android permission mapping (leave as is)
 android.permission_mapping = android.permission_mapping.json
 
-# (list) Android extra manifest XML (for Android 12+ Bluetooth)
-android.extra_manifest_xml = <?xml version="1.0" encoding="utf-8"?>
-    <manifest xmlns:android="http://schemas.android.com/apk/res/android">
-        <uses-permission android:name="android.permission.BLUETOOTH_SCAN" android:usesPermissionFlags="neverForLocation"/>
-    </manifest>
-
 # (bool) Enable AndroidX support
 android.enable_androidx = True
 
