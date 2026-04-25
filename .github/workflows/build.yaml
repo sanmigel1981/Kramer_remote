@@ -26,18 +26,18 @@ jobs:
           pip install --upgrade pip
           pip install buildozer cython
       
-      - name: Setup NDK 25b and remove old NDK
+      - name: Setup NDK 25b with symlink
         run: |
           # Скачиваем NDK 25b
           wget https://dl.google.com/android/repository/android-ndk-r25b-linux.zip
           unzip -q android-ndk-r25b-linux.zip
-          # Удаляем старый NDK
+          # Удаляем старый NDK, если есть
           rm -rf /home/runner/.buildozer/android/platform/android-ndk-r23b
-          # Создаём папку и перемещаем NDK 25b
+          # Создаём символическую ссылку с именем, которое ищет Buildozer
           mkdir -p /home/runner/.buildozer/android/platform/
-          mv android-ndk-r25b /home/runner/.buildozer/android/platform/android-ndk-r25b
+          ln -sf $PWD/android-ndk-r25b /home/runner/.buildozer/android/platform/android-ndk-r23b
           # Устанавливаем переменную окружения
-          echo "ANDROIDNDK=/home/runner/.buildozer/android/platform/android-ndk-r25b" >> $GITHUB_ENV
+          echo "ANDROIDNDK=/home/runner/.buildozer/android/platform/android-ndk-r23b" >> $GITHUB_ENV
       
       - name: Build APK with Buildozer
         run: |
