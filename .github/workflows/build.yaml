@@ -27,16 +27,19 @@ jobs:
           pip install cython==0.29.37
           pip install buildozer
       
-      - name: Setup NDK 25b with symlink and remove broken files
+      - name: Setup NDK 25b and remove Python 2 scripts
         run: |
           # Скачиваем NDK 25b
           wget https://dl.google.com/android/repository/android-ndk-r25b-linux.zip
           unzip -q android-ndk-r25b-linux.zip
-          # Удаляем проблемную папку с Python 2 файлами
+          # Удаляем все проблемные Python 2 скрипты из NDK
+          rm -rf android-ndk-r25b/toolchains/llvm/prebuilt/linux-x86_64/share/clang
           rm -rf android-ndk-r25b/sources/third_party/googletest/scripts
+          rm -rf android-ndk-r25b/build/tools
+          rm -rf android-ndk-r25b/prebuilt/linux-x86_64/bin/*.py
           # Удаляем старый NDK, если есть
           rm -rf /home/runner/.buildozer/android/platform/android-ndk-r23b
-          # Создаём символическую ссылку
+          # Создаём папку и символическую ссылку
           mkdir -p /home/runner/.buildozer/android/platform/
           ln -sf $PWD/android-ndk-r25b /home/runner/.buildozer/android/platform/android-ndk-r23b
           # Устанавливаем переменную окружения
