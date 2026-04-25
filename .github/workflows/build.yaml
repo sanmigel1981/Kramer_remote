@@ -24,19 +24,16 @@ jobs:
       - name: Install Python dependencies
         run: |
           pip install --upgrade pip
-          pip install buildozer cython
+          pip install cython==0.29.37
+          pip install buildozer
       
       - name: Setup NDK 25b with symlink
         run: |
-          # Скачиваем NDK 25b
           wget https://dl.google.com/android/repository/android-ndk-r25b-linux.zip
           unzip -q android-ndk-r25b-linux.zip
-          # Удаляем старый NDK, если есть
           rm -rf /home/runner/.buildozer/android/platform/android-ndk-r23b
-          # Создаём символическую ссылку с именем, которое ищет Buildozer
           mkdir -p /home/runner/.buildozer/android/platform/
           ln -sf $PWD/android-ndk-r25b /home/runner/.buildozer/android/platform/android-ndk-r23b
-          # Устанавливаем переменную окружения
           echo "ANDROIDNDK=/home/runner/.buildozer/android/platform/android-ndk-r23b" >> $GITHUB_ENV
       
       - name: Build APK with Buildozer
