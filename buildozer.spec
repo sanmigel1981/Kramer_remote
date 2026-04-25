@@ -63,7 +63,7 @@ p4a.branch = v2023.09.16
 window_provider = sdl2
 
 # (str) Android private storage (leave as is)
-android.private_storage = applibs
+# android.private_storage = applibs
 
 # (str) Android permission mapping (leave as is)
 android.permission_mapping = android.permission_mapping.json
