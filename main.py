@@ -167,8 +167,16 @@ class KramerLayout(BoxLayout):
             popup_layout.bind(minimum_height=popup_layout.setter('height'))
 
             for name, address in devices:
-                btn = Button(text=f"📱 {name}\n{address}", size_hint_y=None, height=60,
-                            background_color=(0.15, 0.25, 0.4, 1))
+                btn = Button(
+                    text=f"{name}\n{address}",
+                    size_hint_y=None,
+                    height=70,
+                    text_size=(300, None),
+                    halign='center',
+                    valign='middle',
+                    background_color=(0.15, 0.25, 0.4, 1)
+                )
+                btn.bind(size=btn.setter('text_size'))
                 btn.bind(on_release=lambda x, n=name, a=address: self._select_device(n, a))
                 popup_layout.add_widget(btn)
 
@@ -201,25 +209,33 @@ class KramerLayout(BoxLayout):
         self.connecting = True
         try:
             BluetoothAdapter = autoclass('android.bluetooth.BluetoothAdapter')
-            UUID = autoclass('java.util.UUID')
             adapter = BluetoothAdapter.getDefaultAdapter()
 
             if not adapter:
                 raise Exception("No Bluetooth adapter")
 
             device = adapter.getRemoteDevice(mac)
-            spp_uuid = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB")
-
-            # Для HC-06 используем Insecure RFCOMM
+            
+            # Специальный метод для HC-06 (RFCOMM channel 1)
+            sock = None
             try:
                 Method = autoclass('java.lang.reflect.Method')
-                m = device.getClass().getMethod("createInsecureRfcommSocket", [int])
+                m = device.getClass().getMethod("createRfcommSocket", [int])
                 sock = m.invoke(device, 1)
-            except:
-                sock = device.createRfcommSocketToServiceRecord(spp_uuid)
+                sock.connect()
+                self.log("Connected via RFCOMM channel 1")
+            except Exception as e1:
+                self.log(f"Channel 1 failed: {str(e1)[:30]}, trying standard SPP")
+                try:
+                    UUID = autoclass('java.util.UUID')
+                    spp_uuid = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB")
+                    sock = device.createRfcommSocketToServiceRecord(spp_uuid)
+                    sock.connect()
+                    self.log("Connected via Standard SPP")
+                except Exception as e2:
+                    raise Exception(f"Both methods failed: {str(e2)[:30]}")
 
             adapter.cancelDiscovery()
-            sock.connect()
 
             with self.socket_lock:
                 self.bt_socket = sock
@@ -230,12 +246,12 @@ class KramerLayout(BoxLayout):
         except JavaException as e:
             error_msg = str(e)
             if "Permission denied" in error_msg:
-                error_msg = "Permission denied. Check app permissions."
+                error_msg = "Permission denied"
             elif "Service discovery failed" in error_msg:
-                error_msg = "Connection failed. Pair HC-06 in Bluetooth settings first."
-            Clock.schedule_once(lambda dt: self._on_connect_failed(error_msg[:50]), 0)
+                error_msg = "Pair HC-06 in Bluetooth settings first"
+            Clock.schedule_once(lambda dt: self._on_connect_failed(error_msg[:40]), 0)
         except Exception as e:
-            Clock.schedule_once(lambda dt: self._on_connect_failed(str(e)[:50]), 0)
+            Clock.schedule_once(lambda dt: self._on_connect_failed(str(e)[:40]), 0)
         finally:
             self.connecting = False
 

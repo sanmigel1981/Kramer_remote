@@ -8,21 +8,17 @@ version = 1.0
 requirements = python3,kivy==2.1.0,pyjnius,android
 orientation = portrait
 
-# Разрешения для Bluetooth на Android 12+
 android.permissions = BLUETOOTH_SCAN,BLUETOOTH_CONNECT,ACCESS_FINE_LOCATION,INTERNET
 
-# API версии
 android.api = 31
 android.minapi = 21
 android.ndk = 25b
 android.archs = arm64-v8a,armeabi-v7a
 android.accept_sdk_license = True
 
-# Исправление кривого интерфейса
 android.graphics_scale = 1
 android.graphics_scale_auto = True
 
-# Дополнительный манифест для Bluetooth (отвязываем от геолокации)
 android.extra_manifest_xml = <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <uses-permission android:name="android.permission.BLUETOOTH_SCAN" android:usesPermissionFlags="neverForLocation"/>
